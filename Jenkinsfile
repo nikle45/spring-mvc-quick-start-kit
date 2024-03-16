@@ -5,11 +5,6 @@ pipeline{
     maven 'Maven3'
   }
   stages{
-    stage("Cleanup Workesapce"){
-        steps{
-          cleanupWs()
-        }
-    }
     stage("Checking out from SCM"){
       steps{
         git changelog: false, credentialsId: 'github', poll: false, url: 'https://github.com/nikle45/spring-mvc-quick-start-kit'
