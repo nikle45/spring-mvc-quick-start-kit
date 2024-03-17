@@ -4,6 +4,14 @@ pipeline{
     jdk 'Java17'
     maven 'Maven3'
   }
+  environment{
+    APP_NAME = "START-KIT"
+    RELEASE = "1.0.0"
+    DOCKER_USER = "ghalge"
+    DOCKER_PASS = 'dockerhub'
+    IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
+    IMAGE_TAG = "${RELEASE}-${BUILDNUMBER}"
+  }
   stages{
     stage("Checking out from SCM"){
       steps{
@@ -34,6 +42,19 @@ pipeline{
       steps{
         script{
           waitForQualityGate abortPipeline: false, credentialsId: 'Jenkins-sonarqube-token'
+        }
+      }
+    }
+    stage("Build and push docker image "){
+      steps{
+        script{
+          docker.withRegistry('',DOCKER_PASS){
+            docker_image = docker.build "${IMAGE_NAME}"
+          }
+          docker.withRegistry('',DOCKER_PASS){
+            docker_image.push("${IMAGE_TAG}")
+            docker_image.push('latest')
+          }
         }
       }
     }
